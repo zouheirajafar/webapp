@@ -5,19 +5,26 @@
   vars_files:
     - files/secrets/credentials.yml
   pre_tasks:
-    - name: Install some package
+    - name: Install some package 
       package: name='{{ item }}' state=present
       when: ansible_distribution == "CentOS"
       loop:
         - epel-release
-        - git
         - wget
+        - git
+
+    - name: download pip script
+      get_url:
+        url: https://bootstrap.pypa.io/pip/2.7/get-pip.py
+        dest: /tmp/get-pip.py
+
     - name: install python-pip
-      yum: name=python-pip state=present update_cache=yes
+      command: python2.7 /tmp/get-pip.py
+
     - name: Install docker python
       pip: name=docker-py
   tasks:
-    - name: copy webeste file template
+    - name: Copy website file template
       template:
         src: index.html.j2
         dest: /home/admin/index.html
@@ -28,4 +35,5 @@
         ports:
           - "80:80"
         volumes:
-           - /home/admin/index.html:/usr/local/apache2/htdocs/index.html
+          - /home/admin/index.html:/usr/local/apache2/htdocs/index.html
+
